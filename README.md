@@ -6,7 +6,7 @@ This project implements a Bigram Language Model using Python. The purpose of the
 
 - `bigram_model.py`: This file contains the implementation of the Bigram Language Model. It includes methods for preprocessing sentences, loading data, calculating unigram and bigram counts, converting counts to probabilities, generating sentences, calculating sentence log probabilities, and calculating perplexity.
 
-- `test_bigram_model.py`: This file contains test cases for validating the functionality and accuracy of the Bigram Language Model. It covers different aspects of the model, including data loading, probability calculations, sentence generation, and perplexity calculation.
+- `test_bigram_model.py`: This file contains test cases for validating the functionality and accuracy of the Bigram Language Model. 
 
 ## Usage
 
