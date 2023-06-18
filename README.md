@@ -18,38 +18,7 @@ To use the Bigram Language Model in your own project, follow these steps:
    git clone https://github.com/Alicechui/Bigram-Language-Models.git
    ```
 
-2. Import the `bigram_model.py` module into your Python script:
 
-   ```python
-   from bigram_model import BigramLanguageModel
-   ```
-
-3. Create an instance of the `BigramLanguageModel` class:
-
-   ```python
-   model = BigramLanguageModel()
-   ```
-
-4. Load the data and train the model:
-
-   ```python
-   model.load_data("emma.txt")
-   model.train()
-   ```
-
-5. Use the model to generate sentences:
-
-   ```python
-   sentence = model.generate_sentence(seed_word="The")
-   print(sentence)
-   ```
-
-6. Calculate the perplexity score for the model:
-
-   ```python
-   perplexity = model.get_perplexity()
-   print("Perplexity:", perplexity)
-   ```
 
 ## Testing
 
