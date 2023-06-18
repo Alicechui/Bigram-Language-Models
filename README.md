@@ -1,25 +1,73 @@
-# Bigram-Language-Model
+# Bigram Language Model
 
-This project is focused on training a bigram language model using sentences extracted from Jane Austen's novel "Emma." The following methods are utilized in the project:
+This project implements a Bigram Language Model using Python. The purpose of the model is to predict the next word in a sentence based on the previous word using bigram probabilities.
 
-- `preprocess_sentence()`: This method preprocesses a given sentence by removing punctuation, converting it to lowercase, and splitting it into a list of words.
+## Project Structure
 
-- `load_data()`: This method loads the text data from Jane Austen's novel "Emma" and returns a list of preprocessed sentences.
+- `bigram_model.py`: This file contains the implementation of the Bigram Language Model. It includes methods for preprocessing sentences, loading data, calculating unigram and bigram counts, converting counts to probabilities, generating sentences, calculating sentence log probabilities, and calculating perplexity.
 
-- `get_unigram_counts()`: This method calculates the counts of each unigram (individual word) in the dataset and returns a dictionary mapping each word to its count.
+- `test_bigram_model.py`: This file contains test cases for validating the functionality and accuracy of the Bigram Language Model. It covers different aspects of the model, including data loading, probability calculations, sentence generation, and perplexity calculation.
 
-- `get_vocab_index_mappings()`: This method creates a vocabulary of unique words and assigns an index to each word for later use in the language model.
+## Usage
 
-- `get_bigram_counts()`: This method calculates the counts of each bigram (pair of consecutive words) in the dataset and returns a dictionary mapping each bigram to its count.
+To use the Bigram Language Model in your own project, follow these steps:
 
-- `counts_to_probs()`: This method converts the counts of bigrams to probabilities using Laplace smoothing and returns a dictionary mapping each bigram to its probability.
+1. Clone the repository:
 
-- `to_log10()`: This method converts the probabilities of bigrams to their log10 values for efficient computation.
+   ```
+   git clone https://github.com/Alicechui/Bigram-Language-Models.git
+   ```
 
-- `generate_sentence()`: This method generates a new sentence using the trained Bigram model, starting from a given seed word.
+2. Import the `bigram_model.py` module into your Python script:
 
-- `get_sentence_logprob()`: This method calculates the log probability of a given sentence using the trained Bigram model.
+   ```python
+   from bigram_model import BigramLanguageModel
+   ```
 
-- `get_perplexity()`: This method calculates the perplexity score, which measures how well the language model predicts the given dataset, based on the log probabilities of all the sentences in the dataset.
+3. Create an instance of the `BigramLanguageModel` class:
 
-By implementing these methods, the project aims to build a bigram language model and evaluate its performance using perplexity.
+   ```python
+   model = BigramLanguageModel()
+   ```
+
+4. Load the data and train the model:
+
+   ```python
+   model.load_data("emma.txt")
+   model.train()
+   ```
+
+5. Use the model to generate sentences:
+
+   ```python
+   sentence = model.generate_sentence(seed_word="The")
+   print(sentence)
+   ```
+
+6. Calculate the perplexity score for the model:
+
+   ```python
+   perplexity = model.get_perplexity()
+   print("Perplexity:", perplexity)
+   ```
+
+## Testing
+
+To run the test cases, execute the `test_bigram_model.py` file:
+
+```bash
+python test_bigram_model.py
+```
+
+The tests cover various functionalities of the Bigram Language Model and ensure the correctness of the implementation.
+
+## Contributions
+
+Contributions to this project are welcome. If you find any issues or have suggestions for improvements, feel free to open an issue or submit a pull request on the GitHub repository.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+Please refer to the [documentation](README.md) for more information and usage examples.
+
