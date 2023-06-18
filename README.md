@@ -1,4 +1,4 @@
-# Bigram-Language-Models
+# Bigram-Language-Model
 
 The project aims to train a bigram language model using sentences extracted from Jane Austen's novel "Emma." The following methods are employed in the project:
 
