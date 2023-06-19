@@ -1,3 +1,7 @@
+"""
+Project: Bigram Language Model
+Author: Alice Chui
+"""
 import argparse
 import math
 import numpy as np
@@ -24,7 +28,38 @@ def preprocess_sentence(sent, vocab=None, markers=False):
     :return: list of lowercase token strings, with optional OOV replacement
     and marker insertion
     """
-    pass
+    senList = []
+
+
+    words = sent.split()
+    if vocab:
+        for word in words:
+            if word.lower() in vocab:
+                senList.append(word.lower())
+            else:
+                senList.append(UNKNOWN)
+    else:
+        for word in words:
+            senList.append(word.lower())
+
+    if markers:
+        senList.insert(0, BOS_MARKER)
+        senList.append(EOS_MARKER)
+
+    return senList
+
+
+def traverse(o, tree_types=(list, tuple)):
+    """
+    Helping function 
+
+    """
+    if isinstance(o, tree_types):
+        for value in o:
+            for subvalue in traverse(value, tree_types):
+                yield subvalue
+    else:
+        yield o
 
 
 def load_data(corpus_file, vocab=None, markers=False):
@@ -48,7 +83,13 @@ def load_data(corpus_file, vocab=None, markers=False):
     :param markers: if True, BOS and EOS markers are added
     :return: a list of lists representing preprocessed sentences
     """
-    pass
+    sentences = []
+    corpusfile = open(corpus_file, 'r', encoding="utf8")
+    for sentence in corpusfile:
+        sentences.append(preprocess_sentence(sentence, vocab, markers))
+
+    corpusfile.close()
+    return sentences
 
 
 def get_unigram_counts(training_data, remove_low_freq_words=False):
@@ -66,7 +107,30 @@ def get_unigram_counts(training_data, remove_low_freq_words=False):
     :return: a list of vocabulary words, and a dictionary of words:frequencies (optionally
     with low-frequency word counts transferred to the UNKNOWN token)
     """
-    pass
+
+    words = {}
+    temp_dict = {UNKNOWN: 0}
+    flat = []
+
+    for sent in training_data:
+        for word in sent:
+            flat.append(word)
+
+    for word in flat:
+        if word not in words:
+            words[word] = 1
+        else:
+            words[word] += 1
+
+    if remove_low_freq_words:
+        for word in words.keys():
+            if words.get(word) > 1:
+                temp_dict[word] = words.get(word)
+            else:
+                temp_dict[UNKNOWN] += 1
+        words = temp_dict
+
+    return list(words.keys()), words
 
 
 def get_vocab_index_mappings(vocab):
@@ -78,10 +142,22 @@ def get_vocab_index_mappings(vocab):
     a unique index. Include a BOS index in the row mapping, and an EOS index
     in the column mapping.
 
-    :param vocab: a list of vocabulary words
+    :param vocab: a list of vocabulary words`   
     :return: two dictionaries with index mappings
     """
-    pass
+
+
+    
+    row = {BOS_MARKER: 0}
+    col = {}
+
+    for index, word in enumerate(vocab):
+        row[word] = index+1
+        col[word] = index
+
+    col[EOS_MARKER] = len(col)
+
+    return row, col
 
 
 def get_bigram_counts(training_data, row_idx, col_idx, vocab, laplace=False):
@@ -104,7 +180,33 @@ def get_bigram_counts(training_data, row_idx, col_idx, vocab, laplace=False):
     :param laplace: if True, use Laplace smoothing
     :return: a 2D matrix containing the bigram counts, optionally with Laplace smoothing
     """
-    pass
+    bigrams = []
+    matrix = np.zeros((len(col_idx), len(row_idx)))
+	
+	
+    if laplace:
+        matrix = np.ones((len(col_idx), len(row_idx)))
+		
+
+
+    for sentence in training_data:
+        for index, word in enumerate(sentence):
+            if word not in vocab:
+                sentence[index] = UNKNOWN
+
+    for sentence in training_data:
+        sentence.insert(0, BOS_MARKER)
+        sentence.append(EOS_MARKER)
+
+    for sentence in training_data:
+        for index in range(len(sentence)):
+            if len(sentence[index:index+2]) == 2:
+                bigrams.append(sentence[index:index+2])
+
+    for items in bigrams:
+        matrix[row_idx[items[0]]][col_idx[items[1]]] += 1
+
+    return matrix
 
 
 def counts_to_probs(bigram_counts):
@@ -114,7 +216,13 @@ def counts_to_probs(bigram_counts):
     :param bigram_counts: 2D matrix of integer counts of bigrams
     :return: a 2D matrix containing the bigram probabilities
     """
-    pass
+    probs = np.zeros_like(bigram_counts, dtype=np.float64)
+    for row in range(len(bigram_counts)):
+        for column in range(len(bigram_counts[row])):
+            probs[row][column] = bigram_counts[row][column] / \
+                np.sum(bigram_counts[row])
+
+    return probs
 
 
 def to_log10(bigram_probs):
@@ -124,7 +232,7 @@ def to_log10(bigram_probs):
     :param bigram_probs: probability matrix
     :return: log 10 probability matrix
     """
-    pass
+    return np.log10(bigram_probs)
 
 
 def generate_sentence(bigram_probs, row_idx, col_idx):
@@ -138,7 +246,16 @@ def generate_sentence(bigram_probs, row_idx, col_idx):
     :param col_idx: index mapping for columns
     :return: a sentence as a list of words, generated using bigram_probs
     """
-    pass
+    sentence = []
+    word = BOS_MARKER
+
+    while word != EOS_MARKER:
+        sentence.append(word)
+        word = rng.choice(list(col_idx.keys()), p=bigram_probs[row_idx[word]])
+
+    sentence.append(EOS_MARKER)
+
+    return sentence
 
 
 def get_sent_logprob(bigram_logprobs, row_idx, col_idx, sent):
@@ -151,7 +268,17 @@ def get_sent_logprob(bigram_logprobs, row_idx, col_idx, sent):
     :param sent: a preprocessed sentence with BOS and EOS markers
     :return: the log10 probability of sent
     """
-    pass
+    bigrams = []
+    prob = 0
+
+    for index in range(len(sent)):
+        if len(sent[index:index+2]) == 2:
+            bigrams.append(sent[index:index+2])
+
+    for bigram in bigrams:
+        prob += bigram_logprobs[row_idx[bigram[0]]][col_idx[bigram[1]]]
+
+    return prob
 
 
 def get_perplexity(bigram_logprobs, row_idx, col_idx, test_sentences):
@@ -174,7 +301,17 @@ def get_perplexity(bigram_logprobs, row_idx, col_idx, test_sentences):
     :param test_sentences: list of preprocessed test sentences with BOS and EOS markers
     :return: the perplexity of the test sentences according to the given bigram model
     """
-    pass
+    logprob = 0
+    N = 0
+
+    for sentence in test_sentences:
+        logprob += get_sent_logprob(bigram_logprobs,
+                                    row_idx, col_idx, sentence)
+        N += len(sentence)
+
+    N -= len(test_sentences)
+
+    return 10**-(logprob / N)
 
 
 def parse_args():
@@ -196,7 +333,23 @@ def main(args):
 
     :param args: command-line arguments (args.corpus_file, args.test_file)
     """
-    pass
+
+    train_data = load_data(args.corpus_file)
+
+    vocab, frequency = get_unigram_counts(
+        train_data, remove_low_freq_words=True)
+
+    test_data = load_data(args.test_file, vocab, markers=True)
+
+    rows, columns = get_vocab_index_mappings(vocab)
+    counts = get_bigram_counts(train_data, rows, columns, vocab, laplace=True)
+    probs = counts_to_probs(counts)
+    for _ in range(3):
+        sent = generate_sentence(probs, rows, columns)
+        print(sent)
+
+    print("Perplexity is", get_perplexity(
+        to_log10(probs), rows, columns, test_data))
 
 
 if __name__ == '__main__':
